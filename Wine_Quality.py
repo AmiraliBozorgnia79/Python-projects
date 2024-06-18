@@ -42,3 +42,27 @@ Scalar=MinMaxScaler()
 Norm_df=pd.DataFrame(Scalar.fit_transform(df),columns=df.columns)
 print(Norm_df['quality'].value_counts())
 #Neural Network
+
+X=Norm_df.drop('quality',axis=1)
+y=Norm_df['quality'].apply(lambda y_value: 1 if y_value>=0.8 else 0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+Model=Sequential(
+     [Dense(units=10,activation='relu',name='layer1'),
+      Dense(units=8,activation='relu',name='layer2')
+      ,Dense(units=1,activation='sigmoid',name='layer3')])
+
+Model.compile(loss=tf.keras.losses.BinaryCrossentropy(),optimizer=tf.keras.optimizers.Adam(0.001),metrics=['accuracy'])
+Model.fit(X_train,y_train,epochs=100)
+
+
+Model.summary()
+print(Model.evaluate(X_test,y_test))
+#RandomForest
+Model2=RandomForestClassifier(n_estimators=100,max_depth=10,random_state=42)
+Model2.fit(X_train,y_train)
+y_pred2=Model2.predict(X_test)
+y_pred=Model2.predict(X_train)
+
+print(accuracy_score(y_train,y_pred))
+print(accuracy_score(y_test,y_pred2))
+print(confusion_matrix(y_train,y_pred))
